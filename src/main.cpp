@@ -6,25 +6,22 @@
 
 using namespace std;
 
-unordered_map<char, int> readCharacterWeights(int countEntries) {
-    unordered_map<char, int> weights;
-    for (int entry = 0; entry < countEntries; entry++) {
+int main() {
+    int weightCount;
+    cin >> weightCount;
+
+    unordered_map<char, int> characterWeights;
+    for (int entry = 0; entry < weightCount; entry++) {
         char symbol;
         int weight;
         cin >> symbol >> weight;
-        weights[symbol] = weight;
+        characterWeights[symbol] = weight;
     }
-    return weights;
-}
 
-int getCharacterWeight(char symbol, const unordered_map<char, int>& weights) {
-    auto it = weights.find(symbol);
-    return it != weights.end() ? it->second : 0;
-}
+    string firstString;
+    string secondString;
+    cin >> firstString >> secondString;
 
-vector<vector<int>> computeWeightedLCS(const string& firstString,
-                                       const string& secondString,
-                                       const unordered_map<char, int>& weights) {
     int firstLength = firstString.size();
     int secondLength = secondString.size();
     vector<vector<int>> scoreTable(firstLength + 1, vector<int>(secondLength + 1, 0));
@@ -33,28 +30,23 @@ vector<vector<int>> computeWeightedLCS(const string& firstString,
         for (int j = 1; j <= secondLength; j++) {
             scoreTable[i][j] = max(scoreTable[i - 1][j], scoreTable[i][j - 1]);
             if (firstString[i - 1] == secondString[j - 1]) {
-                int letterWeight = getCharacterWeight(firstString[i - 1], weights);
+                auto it = characterWeights.find(firstString[i - 1]);
+                int letterWeight = (it != characterWeights.end()) ? it->second : 0;
                 scoreTable[i][j] = max(scoreTable[i][j], scoreTable[i - 1][j - 1] + letterWeight);
             }
         }
     }
 
-    return scoreTable;
-}
-
-string reconstructWeightedLCS(const string& firstString,
-                              const string& secondString,
-                              const unordered_map<char, int>& weights,
-                              const vector<vector<int>>& scoreTable) {
-    string subsequence;
+    string bestSubsequence;
     int i = firstString.size();
     int j = secondString.size();
 
     while (i > 0 && j > 0) {
         if (firstString[i - 1] == secondString[j - 1]) {
-            int letterWeight = getCharacterWeight(firstString[i - 1], weights);
+            auto it = characterWeights.find(firstString[i - 1]);
+            int letterWeight = (it != characterWeights.end()) ? it->second : 0;
             if (scoreTable[i][j] == scoreTable[i - 1][j - 1] + letterWeight) {
-                subsequence.push_back(firstString[i - 1]);
+                bestSubsequence.push_back(firstString[i - 1]);
                 i--;
                 j--;
                 continue;
@@ -68,21 +60,7 @@ string reconstructWeightedLCS(const string& firstString,
         }
     }
 
-    reverse(subsequence.begin(), subsequence.end());
-    return subsequence;
-}
-
-int main() {
-    int weightCount;
-    cin >> weightCount;
-
-    unordered_map<char, int> characterWeights = readCharacterWeights(weightCount);
-    string firstString;
-    string secondString;
-    cin >> firstString >> secondString;
-
-    vector<vector<int>> scoreTable = computeWeightedLCS(firstString, secondString, characterWeights);
-    string bestSubsequence = reconstructWeightedLCS(firstString, secondString, characterWeights, scoreTable);
+    reverse(bestSubsequence.begin(), bestSubsequence.end());
 
     cout << scoreTable[firstString.size()][secondString.size()] << endl;
     cout << bestSubsequence << endl;
