@@ -3,24 +3,48 @@
 #include <string>
 #include <unordered_map>
 #include <algorithm>
+#include <fstream>
 
 using namespace std;
 
 int main() {
+    cin.tie(nullptr);
+
+    int mode;
+    cout << "Enter 1 for manual input or 2 for file input:  ";
+    cin >> mode;
+
+    istream* inputStream = &cin;
+    ifstream inputFile;
+
+    if (mode == 2) {
+        string inputFileName;
+        cout << "Enter input file name:  ";
+        cin >> inputFileName;
+        inputFile.open(inputFileName);
+
+        if (!inputFile.is_open()) {
+            cerr << "Error: could not open input file.\n";
+            return 1;
+        }
+
+        inputStream = &inputFile;
+    }
+
     int weightCount;
-    cin >> weightCount;
+    (*inputStream) >> weightCount;
 
     unordered_map<char, int> characterWeights;
     for (int entry = 0; entry < weightCount; entry++) {
         char symbol;
         int weight;
-        cin >> symbol >> weight;
+        (*inputStream) >> symbol >> weight;
         characterWeights[symbol] = weight;
     }
 
     string firstString;
     string secondString;
-    cin >> firstString >> secondString;
+    (*inputStream) >> firstString >> secondString;
 
     int firstLength = firstString.size();
     int secondLength = secondString.size();
@@ -62,8 +86,8 @@ int main() {
 
     reverse(bestSubsequence.begin(), bestSubsequence.end());
 
-    cout << scoreTable[firstString.size()][secondString.size()] << endl;
-    cout << bestSubsequence << endl;
+    cout << scoreTable[firstString.size()][secondString.size()] << '\n';
+    cout << bestSubsequence << '\n';
 
     return 0;
 }
